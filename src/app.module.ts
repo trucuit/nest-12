@@ -1,15 +1,16 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthModule } from './module/auth/auth.module';
+import { CategoriesModule } from './module/categories/categories.module';
 import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
 import { UserEntity } from './module/users/user.entity';
 import { UsersModule } from './module/users/users.module';
+import { CategoriesEntity } from './module/categories/categories.entity';
 
 @Module({
   imports: [
@@ -23,16 +24,13 @@ import { UsersModule } from './module/users/users.module';
       username: process.env.DATABASE_USER || 'postgres',
       password: process.env.DATABASE_PASSWORD || '123123',
       database: process.env.DATABASE_NAME || 'posts',
-      entities: [UserEntity, ProductEntity],
+      entities: [UserEntity, ProductEntity, CategoriesEntity],
       synchronize: true, // only use in development
-    }),
-    CacheModule.registerAsync({
-      imports: [ConfigModule, CacheModule.register()],
-      inject: [ConfigService],
     }),
     ProductModule,
     AuthModule,
     UsersModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
