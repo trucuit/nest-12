@@ -1,18 +1,24 @@
 // src/users/users.service.ts
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto } from './users/dto/create-user.dto';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  findAll(): Promise<UserEntity[]> {
+  async findAll(): Promise<UserEntity[]> {
+    const cachedUsers: any = await this.cacheManager.get('users');
+    if (cachedUsers) {
+      return cachedUsers;
+    }
     return this.usersRepository.find();
   }
 

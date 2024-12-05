@@ -1,14 +1,15 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { AuthModule } from './module/auth/auth.module';
 import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
-import { UserEntity } from './users/user.entity';
-import { UsersModule } from './users/users.module';
+import { UserEntity } from './module/users/user.entity';
+import { UsersModule } from './module/users/users.module';
 
 @Module({
   imports: [
@@ -24,6 +25,10 @@ import { UsersModule } from './users/users.module';
       database: process.env.DATABASE_NAME || 'posts',
       entities: [UserEntity, ProductEntity],
       synchronize: true, // only use in development
+    }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule, CacheModule.register()],
+      inject: [ConfigService],
     }),
     ProductModule,
     AuthModule,

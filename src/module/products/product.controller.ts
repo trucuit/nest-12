@@ -21,7 +21,7 @@ import { Product } from 'src/models/product.model';
 import { ValidationPipe } from 'src/validation.pipe';
 import { ProductEntity } from './product.entity';
 import { ProductService } from './product.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/module/auth/jwt-auth.guard';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('products')
