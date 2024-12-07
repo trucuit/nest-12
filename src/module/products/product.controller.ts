@@ -25,22 +25,25 @@ import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { Product } from 'src/models/product.model';
 import { JwtAuthGuard } from 'src/module/auth/jwt-auth.guard';
 import { ValidationPipe } from 'src/validation.pipe';
-import { ProductEntity } from './product.entity';
-import { ProductService } from './product.service';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { ProductEntity } from './product.entity';
+import { ProductService } from './product.service';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('products')
-@UseGuards(JwtAuthGuard, RolesGuard) // Bảo vệ toàn bộ controller bằng xác thực JWT và RolesGuard
+@UseGuards(JwtAuthGuard, RolesGuard)
+@UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
 export class ProductController {
   constructor(
     private productService: ProductService,
     private readonly loggerService: LoggerService,
   ) {}
 
-  @Roles('admin')
   @Get()
+  @CacheTTL(5) // TTL 120 giây cho route này
+  @CacheKey('products') // Key 'all_products' cho dữ liệu cache
   async getProducts(@Req() request: Request): Promise<ResponseData<Product[]>> {
     this.loggerService.log(`Received GET /users request from ${request.ip}`);
 

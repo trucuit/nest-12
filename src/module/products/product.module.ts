@@ -6,6 +6,7 @@ import { ProductEntity } from './product.entity';
 import { LoggerService } from 'src/common/scoped/logger.service';
 import { CacheService } from 'src/transient/cache.service';
 import { CategoriesEntity } from '../categories/categories.entity';
+import { Cache } from '@nestjs/cache-manager';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProductEntity, CategoriesEntity])],

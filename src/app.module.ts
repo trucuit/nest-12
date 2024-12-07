@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -5,12 +6,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthModule } from './module/auth/auth.module';
+import { CategoriesEntity } from './module/categories/categories.entity';
 import { CategoriesModule } from './module/categories/categories.module';
 import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
 import { UserEntity } from './module/users/user.entity';
 import { UsersModule } from './module/users/users.module';
-import { CategoriesEntity } from './module/categories/categories.entity';
+import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
   imports: [
@@ -31,6 +33,14 @@ import { CategoriesEntity } from './module/categories/categories.entity';
     AuthModule,
     UsersModule,
     CategoriesModule,
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+      ttl: 600, // TTL mặc định cho cache (600 giây)
+      max: 100, // Tối đa 100 phần tử trong cache
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

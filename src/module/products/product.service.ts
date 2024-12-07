@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
 import { Product } from 'src/models/product.model';
-import { ProductEntity } from './product.entity';
 import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-import { CacheService } from 'src/transient/cache.service';
 import { CategoriesEntity } from '../categories/categories.entity';
+import { ProductEntity } from './product.entity';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
@@ -15,7 +15,7 @@ export class ProductService {
     private productRepository: Repository<ProductEntity>,
     @InjectRepository(CategoriesEntity)
     private categoriesRepository: Repository<CategoriesEntity>,
-    private readonly cacheService: CacheService,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
   ) {}
 
   // create product
@@ -49,7 +49,7 @@ export class ProductService {
 
   // get all products
   async getProducts(): Promise<Product[]> {
-    let cacheData = this.cacheService.get('products');
+    let cacheData = await this.cacheService.get<Product[]>('products');
     if (cacheData) {
       return cacheData;
     }
@@ -82,6 +82,7 @@ export class ProductService {
       updatedProductDto = { ...productDto, categoryId: category.id };
     }
     await this.productRepository.update(id, updatedProductDto);
+    this.cacheService.del('products');
     return this.getProduct(id);
   }
 
