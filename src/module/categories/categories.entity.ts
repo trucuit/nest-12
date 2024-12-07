@@ -4,9 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ProductEntity } from '../products/product.entity';
 
 @Entity('categories')
 export class CategoriesEntity {
@@ -34,6 +36,10 @@ export class CategoriesEntity {
   })
   @JoinColumn({ name: 'parent_id' })
   parent: CategoriesEntity;
+
+  // relationship with product
+  @OneToMany(() => ProductEntity, (product) => product.category)
+  products: ProductEntity[];
 }
 
 // •	id: Khóa chính tự động tạo UUID.
@@ -42,3 +48,24 @@ export class CategoriesEntity {
 // •	createdAt & updatedAt: Các trường audit để theo dõi thời gian tạo và cập nhật.
 // •	parentId: UUID của parent category để tạo cấu trúc phân cấp. Có thể để trống nếu category là cấp cao nhất.
 // •	parent: Quan hệ Many-to-One với Category để dễ dàng truy vấn parent category.
+
+// create payload create category
+/**
+// POST /categories
+{
+  "name": "Book",
+  "description": "Book category",
+  "parentId": null
+}
+
+// update category id = c359dc51-4de5-41d4-bf48-18752f61dde8
+{
+  "name": "Book",
+  "description": "Book category",
+  "parentId": null
+}
+
+
+
+
+*/

@@ -6,15 +6,48 @@ import { ProductEntity } from './product.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/transient/cache.service';
+import { CategoriesEntity } from '../categories/categories.entity';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(ProductEntity)
     private productRepository: Repository<ProductEntity>,
+    @InjectRepository(CategoriesEntity)
+    private categoriesRepository: Repository<CategoriesEntity>,
     private readonly cacheService: CacheService,
   ) {}
 
+  // create product
+  /**
+   * example:
+   * {
+   *  "name": "product 1",
+   *  "price": 1000,
+   *  "description": "description 1"
+   * }
+   * @param productDto
+   * @returns
+   */
+  async createProduct(productDto: ProductDto): Promise<Product> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id: productDto.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        `Category with ID ${productDto.categoryId} not found`,
+      );
+    }
+
+    const model = this.productRepository.create({
+      ...productDto,
+      category,
+    }); // this line: convert dto to entity
+    return await this.productRepository.save(model);
+  }
+
+  // get all products
   async getProducts(): Promise<Product[]> {
     let cacheData = this.cacheService.get('products');
     if (cacheData) {
@@ -25,39 +58,37 @@ export class ProductService {
     return cacheData;
   }
 
-  async createProduct(productDto: ProductDto): Promise<Product> {
-    const model = this.productRepository.create(productDto); // this line: convert dto to entity
-    const savedEntity = await this.productRepository.save({
-      ...model,
-      id: uuidv4(),
-    });
-    return savedEntity;
-  }
-
+  // get product by id
   async getProduct(id: string): Promise<Product> {
-    return await this.productRepository.findOne({ where: { id } }); // this line: get entity by id
-  }
-
-  async updateProduct(productDto: ProductDto): Promise<Product> {
-    // Find the user to update
-    const user = await this.productRepository.findOne({
-      where: { id: productDto.id },
-    });
-
-    // Check if user exists
-    if (!user) {
-      throw new NotFoundException(`User with ID ${productDto.id} not found`);
+    const product = await this.productRepository.findOne({ where: { id } }); // this line: get entity by id
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
     }
-
-    // Update the user's properties
-    Object.assign(user, productDto); // Simple update, handles partial updates
-
-    // Save the updated user
-    return await this.productRepository.save(user);
+    return product;
   }
 
-  deleteProduct(id: string): boolean {
-    this.productRepository.delete(id);
-    return true;
+  // update product
+  async updateProduct(id: string, productDto: ProductDto): Promise<Product> {
+    let updatedProductDto = { ...productDto };
+    if (productDto.categoryId) {
+      const category = await this.categoriesRepository.findOne({
+        where: { id: productDto.categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException(
+          `Category with ID ${productDto.categoryId} not found`,
+        );
+      }
+      updatedProductDto = { ...productDto, categoryId: category.id };
+    }
+    await this.productRepository.update(id, updatedProductDto);
+    return this.getProduct(id);
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    const result = this.productRepository.delete(id);
+    if (!result) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
   }
 }

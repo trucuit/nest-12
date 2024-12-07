@@ -20,6 +20,7 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
+  // use email instead of username
   findOneByUsername(username: string): Promise<UserEntity> {
     return this.usersRepository.findOneBy({ username });
   }

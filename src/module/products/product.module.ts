@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductEntity } from './product.entity';
 import { LoggerService } from 'src/common/scoped/logger.service';
 import { CacheService } from 'src/transient/cache.service';
+import { CategoriesEntity } from '../categories/categories.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductEntity])],
+  imports: [TypeOrmModule.forFeature([ProductEntity, CategoriesEntity])],
   controllers: [ProductController],
   providers: [ProductService, CacheService, LoggerService],
 })

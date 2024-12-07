@@ -12,4 +12,11 @@ export class CacheService {
   get(key: string) {
     return this.cache.get(key);
   }
+
+  // Method to clear the cache
+  clear() {
+    this.cache.clear();
+  }
 }
+
+// how to clean up the cache

@@ -11,17 +11,17 @@ export class AuthGuard implements CanActivate {
   }
 }
 function validateRequest(request: any): boolean {
-  // const authHeader = request.headers['authorization'];
+  const authHeader = request.headers['authorization'];
 
-  // if (!authHeader) {
-  //   return false;
-  // }
+  if (!authHeader) {
+    return false;
+  }
 
-  // // Basic validation of Bearer token
-  // const [type, token] = authHeader.split(' ');
-  // if (type !== 'Bearer' || !token) {
-  //   return false;
-  // }
+  // Basic validation of Bearer token
+  const [type, token] = authHeader.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return false;
+  }
 
   return true;
 }
