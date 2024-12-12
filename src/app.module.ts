@@ -14,7 +14,10 @@ import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
 import { UserEntity } from './module/users/user.entity';
 import { UsersModule } from './module/users/users.module';
+import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
+import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
 
 @Module({
   imports: [
@@ -28,7 +31,7 @@ import { RedisModule } from './redis/redis.module';
       username: process.env.DATABASE_USER || 'postgres',
       password: process.env.DATABASE_PASSWORD || '123123',
       database: process.env.DATABASE_NAME || 'posts',
-      entities: [UserEntity, ProductEntity, CategoriesEntity],
+      entities: [UserEntity, ProductEntity, CategoriesEntity, Order, OrderItem],
       synchronize: true, // only use in development
     }),
     CacheModule.register({
@@ -45,6 +48,7 @@ import { RedisModule } from './redis/redis.module';
     CategoriesModule,
     RedisModule,
     CartModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

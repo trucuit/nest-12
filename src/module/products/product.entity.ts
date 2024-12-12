@@ -51,7 +51,7 @@ export class ProductEntity {
   "description": "Book 1 description",
   "price": 100,
   "image": "https://example.com/book1.jpg",
-  "category": "cdafe7f1-af58-4f3c-a4ee-0535f8e8ebda"
+  "categoryId": "cdafe7f1-af58-4f3c-a4ee-0535f8e8ebda"
 }
 
 */

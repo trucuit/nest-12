@@ -30,7 +30,7 @@ export class CartService {
   async getCart(userId: string): Promise<any[]> {
     const cartKey = this.getCartKey(userId);
     const entries = await this.redisClient.hgetall(cartKey);
-    console.log(entries);
+    console.log('entries', entries);
 
     // convert object to array
     const items = Object.values(entries).map((data) => JSON.parse(data));

@@ -1,16 +1,18 @@
 // src/users/user.entity.ts
+import { Order } from 'src/orders/entities/order.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
 export class UserEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ length: 50, unique: true })
   username: string;
@@ -21,12 +23,15 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column({ default: 'user' }) // Giá trị mặc định là 'user'
-  role: string; // 'admin' hoặc 'user'
+  @Column({ default: 'user' }) // default role is 'user'
+  role: string; // 'admin' or 'user'
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => Order, (order) => order.user, { cascade: true })
+  orders: Order[];
 }

@@ -3,7 +3,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
 import { Product } from 'src/models/product.model';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CategoriesEntity } from '../categories/categories.entity';
 import { ProductEntity } from './product.entity';
 import { Cache } from 'cache-manager';
@@ -70,6 +70,7 @@ export class ProductService {
   // update product
   async updateProduct(id: string, productDto: ProductDto): Promise<Product> {
     let updatedProductDto = { ...productDto };
+
     if (productDto.categoryId) {
       const category = await this.categoriesRepository.findOne({
         where: { id: productDto.categoryId },
@@ -79,8 +80,15 @@ export class ProductService {
           `Category with ID ${productDto.categoryId} not found`,
         );
       }
-      updatedProductDto = { ...productDto, categoryId: category.id };
+      await this.productRepository.update(id, { ...productDto });
+      const product = await this.productRepository.findOne({ where: { id } });
+      if (product) {
+        product.category = category;
+        await this.productRepository.save(product);
+      }
     }
+    console.log('updatedProductDto', updatedProductDto);
+
     await this.productRepository.update(id, updatedProductDto);
     this.cacheService.del('products');
     return this.getProduct(id);
@@ -91,5 +99,19 @@ export class ProductService {
     if (!result) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
+  }
+
+  async findByIds(ids: string[]): Promise<Product[]> {
+    const products = await this.productRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+
+    if (products.length === 0) {
+      throw new NotFoundException('Không tìm thấy sản phẩm nào.');
+    }
+
+    return products;
   }
 }

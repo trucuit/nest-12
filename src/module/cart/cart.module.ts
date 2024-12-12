@@ -7,5 +7,6 @@ import { RedisModule } from 'src/redis/redis.module';
   imports: [RedisModule],
   controllers: [CartController],
   providers: [CartService],
+  exports: [CartService],
 })
 export class CartModule {}

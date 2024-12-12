@@ -62,7 +62,6 @@ export class ProductController {
     }
   }
 
-  @Roles('admin')
   @Post()
   @UseInterceptors(
     FileInterceptor('image', {
@@ -89,30 +88,22 @@ export class ProductController {
     @Body(new ValidationPipe()) productDto: ProductDto,
     @UploadedFile() image: Express.Multer.File,
   ): Promise<ResponseData<Product>> {
-    try {
-      if (image) {
-        productDto = {
-          ...productDto,
-          image: image.filename,
-          price: Number(productDto.price),
-        };
-      }
-
-      return new ResponseData<Product>(
-        plainToClass(
-          ProductEntity,
-          await this.productService.createProduct(productDto),
-        ),
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    } catch {
-      return new ResponseData<Product>(
-        null,
-        HttpStatus.ERROR,
-        HttpMessage.ERROR,
-      );
+    if (image) {
+      productDto = {
+        ...productDto,
+        image: image.filename,
+        price: Number(productDto.price),
+      };
     }
+
+    return new ResponseData<Product>(
+      plainToClass(
+        ProductEntity,
+        await this.productService.createProduct(productDto),
+      ),
+      HttpStatus.SUCCESS,
+      HttpMessage.SUCCESS,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -140,36 +131,20 @@ export class ProductController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() productDto: ProductDto,
   ): Promise<ResponseData<Product>> {
-    try {
-      return new ResponseData<Product>(
-        await this.productService.updateProduct(id, productDto),
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    } catch {
-      return new ResponseData<Product>(
-        null,
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    }
+    return new ResponseData<Product>(
+      await this.productService.updateProduct(id, productDto),
+      HttpStatus.SUCCESS,
+      HttpMessage.SUCCESS,
+    );
   }
 
   @Delete('/:id')
   async deleteProduct(@Param('id') id: string): Promise<ResponseData<boolean>> {
-    try {
-      await this.productService.deleteProduct(id);
-      return new ResponseData<boolean>(
-        true,
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    } catch {
-      return new ResponseData<boolean>(
-        null,
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    }
+    await this.productService.deleteProduct(id);
+    return new ResponseData<boolean>(
+      true,
+      HttpStatus.SUCCESS,
+      HttpMessage.SUCCESS,
+    );
   }
 }
