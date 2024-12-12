@@ -21,12 +21,8 @@ export class CartService {
     return `cart:${userId}`;
   }
 
-  // add or update item in cart
-  async addOrUpdateItem(
-    userId: string,
-    productId: string,
-    quantity: number,
-  ): Promise<void> {
+  // check if product exists
+  async productExists(productId: string): Promise<boolean> {
     // check if productId is valid from product database
     const product = await this.productRepository.findOne({
       where: { id: productId },
@@ -34,6 +30,16 @@ export class CartService {
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
+    return true;
+  }
+
+  // add or update item in cart
+  async addOrUpdateItem(
+    userId: string,
+    productId: string,
+    quantity: number,
+  ): Promise<void> {
+    if (!(await this.productExists(productId))) return;
 
     // save item to redis
     const itemData = JSON.stringify({ productId, quantity });
@@ -52,14 +58,27 @@ export class CartService {
 
   // get item by productId
   async getItem(userId: string, productId: string): Promise<any> {
+    if (!(await this.productExists(productId))) return;
+
     const cartKey = this.getCartKey(userId);
     const itemData = await this.redisClient.hget(cartKey, productId);
+    if (!itemData) {
+      throw new NotFoundException(`Item with productId ${productId} not found`);
+    }
     return JSON.parse(itemData);
   }
 
   // remove item from cart
   async removeItem(userId: string, productId: string): Promise<void> {
+    if (!(await this.productExists(productId))) return;
+
     const cartKey = this.getCartKey(userId);
+    // remove item from redis
+    // check if item exists
+    const itemData = await this.redisClient.hget(cartKey, productId);
+    if (!itemData) {
+      throw new NotFoundException(`Item with productId ${productId} not found`);
+    }
     await this.redisClient.hdel(cartKey, productId);
   }
 
