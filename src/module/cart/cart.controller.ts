@@ -1,73 +1,62 @@
 // src/cart/cart.controller.ts
 import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Param,
   Body,
-  Req,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { CartService } from './cart.service';
-import { Request } from 'express';
-import { CreateOrUpdateCartItemDto } from './dto/create-or-update-cart-item.dto';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserEntity } from '../users/user.entity';
+import { CartService } from './cart.service';
+import { CreateOrUpdateCartItemDto } from './dto/create-or-update-cart-item.dto';
 
 @Controller('cart')
 @UseGuards(JwtAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  // hardcoded userId for now
-  private userId = '';
-
   @Post('item')
   async addOrUpdateItem(
-    @Req() request: Request,
+    @GetUser() user: Pick<UserEntity, 'id'>,
     @Body() dto: CreateOrUpdateCartItemDto,
   ) {
-    this.userId = (request as any).user?.userId;
-
-    await this.cartService.addOrUpdateItem(
-      this.userId,
-      dto.productId,
-      dto.quantity,
-    );
+    const userId = user.id;
+    await this.cartService.addOrUpdateItem(userId, dto.productId, dto.quantity);
     return { message: 'Item added/updated successfully' };
   }
 
   @Get()
-  async getCart() {
-    const cart = await this.cartService.getCart(this.userId);
+  async getCart(@GetUser() user: Pick<UserEntity, 'id'>) {
+    const userId = user.id;
+    const cart = await this.cartService.getCart(userId);
     return cart;
   }
 
   @Get(':productId')
   async getItem(
-    @Req() request: Request,
+    @GetUser() user: Pick<UserEntity, 'id'>,
     @Param('productId') productId: string,
   ) {
-    this.userId = (request as any).user?.userId;
-    const item = await this.cartService.getItem(this.userId, productId);
+    const item = await this.cartService.getItem(user.id, productId);
     return item || { message: 'Item not found' };
   }
 
   @Delete(':productId')
   async removeItem(
-    @Req() request: Request,
+    @GetUser() user: Pick<UserEntity, 'id'>,
     @Param('productId') productId: string,
   ) {
-    this.userId = (request as any).user?.userId;
-    await this.cartService.removeItem(this.userId, productId);
+    await this.cartService.removeItem(user.id, productId);
     return { message: 'Item removed successfully' };
   }
 
   @Delete()
-  async clearCart(@Req() request: Request) {
-    this.userId = (request as any).user?.userId;
-
-    await this.cartService.clearCart(this.userId);
+  async clearCart(@GetUser() user: Pick<UserEntity, 'id'>) {
+    await this.cartService.clearCart(user.id);
     return { message: 'Cart cleared successfully' };
   }
 }

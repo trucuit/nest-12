@@ -20,3 +20,25 @@ export class OrderItem {
   @Column('int')
   quantity: number;
 }
+
+/*
+
+// payload for POST /order/confirm
+{
+  "address": "123 Street, City",
+  "phoneNumber": "1234567890",
+  "items": [
+    {
+      "productId": "1",
+      "price": 100,
+      "quantity": 2
+    },
+    {
+      "productId": "2",
+      "price": 200,
+      "quantity": 1
+    }
+  ]
+}
+ 
+*/
