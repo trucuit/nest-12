@@ -61,6 +61,7 @@ export class ProductService {
   // get product by id
   async getProduct(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({ where: { id } }); // this line: get entity by id
+
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
@@ -69,34 +70,34 @@ export class ProductService {
 
   // update product
   async updateProduct(id: string, productDto: ProductDto): Promise<Product> {
-    let updatedProductDto = { ...productDto };
+    const category = await this.categoriesRepository.findOne({
+      where: { id: productDto.categoryId },
+    });
 
-    if (productDto.categoryId) {
-      const category = await this.categoriesRepository.findOne({
-        where: { id: productDto.categoryId },
-      });
-      if (!category) {
-        throw new NotFoundException(
-          `Category with ID ${productDto.categoryId} not found`,
-        );
-      }
-      await this.productRepository.update(id, { ...productDto });
-      const product = await this.productRepository.findOne({ where: { id } });
-      if (product) {
-        product.category = category;
-        await this.productRepository.save(product);
-      }
+    if (!category) {
+      throw new NotFoundException(
+        `Category with ID ${productDto.categoryId} not found`,
+      );
     }
-    console.log('updatedProductDto', updatedProductDto);
 
-    await this.productRepository.update(id, updatedProductDto);
-    this.cacheService.del('products');
-    return this.getProduct(id);
+    const model = this.productRepository.create({
+      ...productDto,
+      category,
+    });
+
+    const result = await this.productRepository.update(id, model);
+    if (!result.affected) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    // clear cache
+    await this.cacheService.del('products');
+    return await this.productRepository.findOne({ where: { id } });
   }
 
   async deleteProduct(id: string): Promise<void> {
-    const result = this.productRepository.delete(id);
-    if (!result) {
+    const result = await this.productRepository.delete(id);
+
+    if (!result.affected) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
   }

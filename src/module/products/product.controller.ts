@@ -34,7 +34,7 @@ import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('products')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
+// @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
 export class ProductController {
   constructor(
     private productService: ProductService,
@@ -111,19 +111,13 @@ export class ProductController {
   async getProduct(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<ResponseData<Product>> {
-    try {
-      return new ResponseData<Product>(
-        await this.productService.getProduct(id),
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    } catch {
-      return new ResponseData<Product>(
-        null,
-        HttpStatus.ERROR,
-        HttpMessage.ERROR,
-      );
-    }
+    console.log('get product', id);
+
+    return new ResponseData<Product>(
+      await this.productService.getProduct(id),
+      HttpStatus.SUCCESS,
+      HttpMessage.SUCCESS,
+    );
   }
 
   @Put(':id')
