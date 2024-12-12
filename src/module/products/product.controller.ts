@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -44,22 +45,24 @@ export class ProductController {
   @Get()
   @CacheTTL(5) // TTL 120 giây cho route này
   @CacheKey('products') // Key 'all_products' cho dữ liệu cache
-  async getProducts(@Req() request: Request): Promise<ResponseData<Product[]>> {
-    this.loggerService.log(`Received GET /users request from ${request.ip}`);
-
-    try {
-      return new ResponseData<Product[]>(
-        await this.productService.getProducts(),
-        HttpStatus.SUCCESS,
-        HttpMessage.SUCCESS,
-      );
-    } catch {
-      return new ResponseData<Product[]>(
-        [],
-        HttpStatus.ERROR,
-        HttpMessage.ERROR,
-      );
-    }
+  async getProducts(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<
+    ResponseData<{
+      data: ProductEntity[];
+      total: number;
+      page: number;
+      limit: number;
+    }>
+  > {
+    const products = await this.productService.getProducts(page, limit);
+    return new ResponseData<{
+      data: ProductEntity[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(products, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
   @Post()

@@ -32,3 +32,27 @@ export class CreateOrderItemDto {
   @Min(1)
   quantity: number;
 }
+
+/*
+payload items for POST /order/confirm
+{
+  "address": "123 Street, City",
+  "phoneNumber": "1234567890",
+  "items": [
+    {
+      "productId": "1",
+      "productName": "Wireless Mouse",
+      "price": 25.5,
+      "quantity": 2
+    },
+    {
+      "productId": "2",
+      "productName": "Keyboard",
+      "price": 50.0,
+      "quantity": 1
+    }
+  ]
+}
+
+
+*/

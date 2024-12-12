@@ -48,14 +48,34 @@ export class ProductService {
   }
 
   // get all products
-  async getProducts(): Promise<Product[]> {
-    let cacheData = await this.cacheService.get<Product[]>('products');
-    if (cacheData) {
-      return cacheData;
-    }
-    cacheData = await this.productRepository.find();
-    this.cacheService.set('products', cacheData);
-    return cacheData;
+  async getProducts(
+    page: number,
+    limit: number,
+  ): Promise<{
+    data: ProductEntity[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    // let cacheData = await this.cacheService.get<Product[]>('products');
+    // if (cacheData) {
+    //   return cacheData;
+    // }
+    // cacheData = await this.productRepository.find();
+    // this.cacheService.set('products', cacheData);
+    // return cacheData;
+
+    const [data, total] = await this.productRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
   }
 
   // get product by id
