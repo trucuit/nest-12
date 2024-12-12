@@ -1,13 +1,19 @@
-// src/cart/cart.service.ts
-import { Injectable } from '@nestjs/common';
-import { RedisService } from '../../redis/redis.service';
-import Redis from 'ioredis';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProductEntity } from '../products/product.entity';
+import * as Redis from 'ioredis';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class CartService {
-  private redisClient: Redis;
+  private redisClient: Redis.Redis;
 
-  constructor(private redisService: RedisService) {
+  constructor(
+    private redisService: RedisService,
+    @InjectRepository(ProductEntity)
+    private productRepository: Repository<ProductEntity>,
+  ) {
     this.redisClient = this.redisService.getClient();
   }
 
@@ -21,6 +27,14 @@ export class CartService {
     productId: string,
     quantity: number,
   ): Promise<void> {
+    // check if productId is valid from product database
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${productId} not found`);
+    }
+
     // save item to redis
     const itemData = JSON.stringify({ productId, quantity });
     await this.redisClient.hset(this.getCartKey(userId), productId, itemData);
@@ -30,7 +44,6 @@ export class CartService {
   async getCart(userId: string): Promise<any[]> {
     const cartKey = this.getCartKey(userId);
     const entries = await this.redisClient.hgetall(cartKey);
-    console.log('entries', entries);
 
     // convert object to array
     const items = Object.values(entries).map((data) => JSON.parse(data));
@@ -39,20 +52,20 @@ export class CartService {
 
   // get item by productId
   async getItem(userId: string, productId: string): Promise<any> {
-    const data = await this.redisClient.hget(
-      this.getCartKey(userId),
-      productId,
-    );
-    return data ? JSON.parse(data) : null;
+    const cartKey = this.getCartKey(userId);
+    const itemData = await this.redisClient.hget(cartKey, productId);
+    return JSON.parse(itemData);
   }
 
   // remove item from cart
   async removeItem(userId: string, productId: string): Promise<void> {
-    await this.redisClient.hdel(this.getCartKey(userId), productId);
+    const cartKey = this.getCartKey(userId);
+    await this.redisClient.hdel(cartKey, productId);
   }
 
   // clear cart
   async clearCart(userId: string): Promise<void> {
-    await this.redisClient.del(this.getCartKey(userId));
+    const cartKey = this.getCartKey(userId);
+    await this.redisClient.del(cartKey);
   }
 }

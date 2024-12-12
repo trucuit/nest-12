@@ -1,17 +1,34 @@
 // src/cart/cart.controller.ts
-import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Param,
+  Body,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CartService } from './cart.service';
+import { Request } from 'express';
 import { CreateOrUpdateCartItemDto } from './dto/create-or-update-cart-item.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('cart')
+@UseGuards(JwtAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   // hardcoded userId for now
-  private userId = '123e4567-e89b-12d3-a456-426614174000';
+  private userId = '';
 
   @Post('item')
-  async addOrUpdateItem(@Body() dto: CreateOrUpdateCartItemDto) {
+  async addOrUpdateItem(
+    @Req() request: Request,
+    @Body() dto: CreateOrUpdateCartItemDto,
+  ) {
+    this.userId = (request as any).user?.userId;
+
     await this.cartService.addOrUpdateItem(
       this.userId,
       dto.productId,
@@ -27,19 +44,29 @@ export class CartController {
   }
 
   @Get(':productId')
-  async getItem(@Param('productId') productId: string) {
+  async getItem(
+    @Req() request: Request,
+    @Param('productId') productId: string,
+  ) {
+    this.userId = (request as any).user?.userId;
     const item = await this.cartService.getItem(this.userId, productId);
     return item || { message: 'Item not found' };
   }
 
   @Delete(':productId')
-  async removeItem(@Param('productId') productId: string) {
+  async removeItem(
+    @Req() request: Request,
+    @Param('productId') productId: string,
+  ) {
+    this.userId = (request as any).user?.userId;
     await this.cartService.removeItem(this.userId, productId);
     return { message: 'Item removed successfully' };
   }
 
   @Delete()
-  async clearCart() {
+  async clearCart(@Req() request: Request) {
+    this.userId = (request as any).user?.userId;
+
     await this.cartService.clearCart(this.userId);
     return { message: 'Cart cleared successfully' };
   }
