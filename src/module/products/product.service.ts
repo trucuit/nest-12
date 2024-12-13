@@ -73,8 +73,8 @@ export class ProductService {
     return {
       data,
       total,
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
     };
   }
 
