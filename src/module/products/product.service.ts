@@ -57,14 +57,6 @@ export class ProductService {
     page: number;
     limit: number;
   }> {
-    // let cacheData = await this.cacheService.get<Product[]>('products');
-    // if (cacheData) {
-    //   return cacheData;
-    // }
-    // cacheData = await this.productRepository.find();
-    // this.cacheService.set('products', cacheData);
-    // return cacheData;
-
     const [data, total] = await this.productRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,

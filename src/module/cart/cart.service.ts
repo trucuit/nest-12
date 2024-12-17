@@ -54,6 +54,7 @@ export class CartService {
     // convert object to array
     const items = Object.values(entries).map((data) => JSON.parse(data));
     // get more info of product from database and return to client
+    // TODO: refactor this to use a single query
     for (let i = 0; i < items.length; i++) {
       const product = await this.productRepository.findOne({
         where: { id: items[i].productId },

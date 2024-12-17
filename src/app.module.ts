@@ -18,11 +18,18 @@ import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { FileController } from './module/file/file.controller';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigModule global
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Serve files from `uploads` directory
+      serveRoot: '/uploads', // Map to `/uploads` in the URL
     }),
     TypeOrmModule.forRoot({
       type: 'postgres', // Hoặc database bạn đang sử dụng
@@ -50,7 +57,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
     CartModule,
     OrdersModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, FileController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {

@@ -53,7 +53,7 @@ export class ProductController {
       data: ProductEntity[];
       total: number;
       page: number;
-      limit: number;
+      limit: number; // TODO: modeling response data
     }>
   > {
     const products = await this.productService.getProducts(page, limit);
