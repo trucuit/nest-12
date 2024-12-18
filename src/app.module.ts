@@ -1,26 +1,28 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as redisStore from 'cache-manager-ioredis';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MailQueueModule } from './mail-queue/mail-queue.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthModule } from './module/auth/auth.module';
 import { CartModule } from './module/cart/cart.module';
 import { CategoriesEntity } from './module/categories/categories.entity';
 import { CategoriesModule } from './module/categories/categories.module';
+import { FileController } from './module/file/file.controller';
 import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
 import { UserEntity } from './module/users/user.entity';
 import { UsersModule } from './module/users/users.module';
+import { OrderItem } from './orders/entities/order-item.entity';
+import { Order } from './orders/entities/order.entity';
 import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
-import { Order } from './orders/entities/order.entity';
-import { OrderItem } from './orders/entities/order-item.entity';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { FileController } from './module/file/file.controller';
-import { join } from 'path';
 
 @Module({
   imports: [
@@ -49,6 +51,7 @@ import { join } from 'path';
       ttl: 600, // TTL mặc định cho cache (600 giây)
       max: 100, // Tối đa 100 phần tử trong cache
     }),
+    ScheduleModule.forRoot(),
     ProductModule,
     AuthModule,
     UsersModule,
@@ -56,6 +59,7 @@ import { join } from 'path';
     RedisModule,
     CartModule,
     OrdersModule,
+    MailQueueModule,
   ],
   controllers: [AppController, FileController],
   providers: [AppService],

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailQueueService } from 'src/mail-queue/mail-queue.service';
 import { ProductService } from 'src/module/products/product.service';
 import { RedisService } from 'src/redis/redis.service';
 import { Repository } from 'typeorm';
@@ -23,6 +24,7 @@ export class OrderService {
 
     private redisService: RedisService,
     private productsService: ProductService, // Inject ProductsService
+    private readonly mailQueueService: MailQueueService,
   ) {}
 
   private getCartKey(userId: string): string {
@@ -31,6 +33,7 @@ export class OrderService {
 
   async confirmOrder(
     userId: string,
+    userEmail: string,
     createOrderDto: CreateOrderDto,
   ): Promise<Order> {
     const { address, phoneNumber, items } = createOrderDto;
@@ -52,7 +55,7 @@ export class OrderService {
       user: { id: userId }, // TypeORM will automatically convert this to UserEntity
       address,
       phoneNumber,
-      status: OrderStatus.CONFIRMED,
+      status: OrderStatus.PENDING,
       items: [],
     });
 
@@ -81,6 +84,14 @@ export class OrderService {
     // remove from redis
     await this.redisService.getClient().del(this.getCartKey(userId));
 
+    const emailContent = `Thank you for your order! Your order ID is ${'orderId'}.`;
+
+    await this.mailQueueService.addToQueue(
+      userEmail,
+      'Order Confirmation',
+      emailContent,
+    );
+
     return order;
   }
 
@@ -99,5 +110,19 @@ export class OrderService {
       throw new NotFoundException('Order not found.');
     }
     return order;
+  }
+
+  // Get orders that are pending and older than 5 minutes
+  async getPendingOrders(): Promise<Order[]> {
+    return await this.ordersRepository.find({
+      where: {
+        status: OrderStatus.PENDING,
+      },
+    });
+  }
+
+  // Update order status
+  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
+    await this.ordersRepository.update(orderId, { status });
   }
 }

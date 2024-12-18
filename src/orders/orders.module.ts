@@ -1,11 +1,13 @@
 // src/orders/orders.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrderCronService } from 'src/cron/order-cron.service';
+import { MailQueueModule } from 'src/mail-queue/mail-queue.module';
 import { CartModule } from 'src/module/cart/cart.module';
+import { ProductModule } from 'src/module/products/product.module';
 import { RedisModule } from '../redis/redis.module';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
-import { ProductModule } from 'src/module/products/product.module';
 import { OrderController } from './orders/orders.controller';
 import { OrderService } from './orders/orders.service';
 
@@ -15,8 +17,9 @@ import { OrderService } from './orders/orders.service';
     RedisModule,
     CartModule,
     ProductModule,
+    MailQueueModule,
   ],
-  providers: [OrderService],
+  providers: [OrderService, OrderCronService],
   controllers: [OrderController],
 })
 export class OrdersModule {}

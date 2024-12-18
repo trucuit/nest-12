@@ -41,11 +41,16 @@ export class OrderController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async confirmOrder(
-    @GetUser() user: Pick<UserEntity, 'id'>,
+    @GetUser() user: Pick<UserEntity, 'id' | 'email'>,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<Order> {
     const userId = user.id;
-    const order = await this.orderService.confirmOrder(userId, createOrderDto);
+    const email = user.email;
+    const order = await this.orderService.confirmOrder(
+      userId,
+      email,
+      createOrderDto,
+    );
     return order;
   }
 
@@ -73,10 +78,10 @@ export class OrderController {
   })
   @ApiResponse({ status: 404, description: 'Order not found.' })
   async getOrderById(
-    @GetUser() user: Pick<UserEntity, 'id'>,
+    @GetUser() user: Pick<UserEntity, 'id' | 'email'>,
     @Param('orderId') orderId: string,
   ): Promise<Order> {
-    const userId = user.id;
+    const { id: userId } = user;
     const order = await this.orderService.getOrderById(userId, orderId);
     return order;
   }
