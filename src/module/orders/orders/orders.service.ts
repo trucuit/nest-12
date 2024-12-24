@@ -5,10 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MailQueueService } from 'src/mail-queue/mail-queue.service';
-import { ProductService } from 'src/module/products/product.service';
-import { RedisService } from 'src/redis/redis.service';
 import { Repository } from 'typeorm';
+import { MailQueueService } from '../../../mail-queue/mail-queue.service';
+import { RedisService } from '../../../redis/redis.service';
+import { ProductService } from '../../products/product.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { OrderItem } from '../entities/order-item.entity';
 import { Order, OrderStatus } from '../entities/order.entity';
@@ -70,6 +70,7 @@ export class OrderService {
 
       // Create OrderItem
       const orderItem = this.orderItemsRepository.create({
+        order: order, // Associate OrderItem with Order
         product: product,
         price: product.price,
         quantity: item.quantity,
@@ -80,6 +81,7 @@ export class OrderService {
 
     // save Order
     await this.ordersRepository.save(order);
+    await this.orderItemsRepository.save(order.items); // Save OrderItems
 
     // remove from redis
     await this.redisService.getClient().del(this.getCartKey(userId));

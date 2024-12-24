@@ -12,7 +12,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
 import { CategoriesEntity } from './categories.entity';
-import { CreateCategoryDto } from 'src/dto/create-category.dto';
+import { CreateCategoryDto } from '../../dto/create-category.dto';
 
 @Controller('categories')
 @UseGuards(JwtAuthGuard)

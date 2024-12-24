@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductDto } from 'src/dto/product.dto';
+import { ProductDto } from '../../dto/product.dto';
 import { Product } from 'src/models/product.model';
 import { In, Repository } from 'typeorm';
 import { CategoriesEntity } from '../categories/categories.entity';

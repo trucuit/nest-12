@@ -1,5 +1,5 @@
 // src/order/entities/order-item.entity.ts
-import { ProductEntity } from 'src/module/products/product.entity';
+import { ProductEntity } from '../../products/product.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order.entity';
 

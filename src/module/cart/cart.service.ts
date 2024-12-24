@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductEntity } from '../products/product.entity';
 import * as Redis from 'ioredis';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
 export class CartService {

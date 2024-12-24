@@ -1,3 +1,4 @@
+import { CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -9,28 +10,24 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
-import { Request } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { LoggerService } from 'src/common/scoped/logger.service';
-import { ProductDto } from 'src/dto/product.dto';
-import { ResponseData } from 'src/global/globalClass';
-import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
+import { ProductDto } from '../../dto/product.dto';
+import { ResponseData } from '../../global/globalClass';
+import { HttpMessage, HttpStatus } from '../../global/globalEnum';
 import { Product } from 'src/models/product.model';
-import { JwtAuthGuard } from 'src/module/auth/jwt-auth.guard';
-import { ValidationPipe } from 'src/validation.pipe';
-import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from '../../module/auth/jwt-auth.guard';
+import { ValidationPipe } from '../../validation.pipe';
+import { LoggerService } from '../../common/scoped/logger.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { ProductEntity } from './product.entity';
 import { ProductService } from './product.service';
-import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('products')

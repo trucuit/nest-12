@@ -16,8 +16,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser } from 'src/module/auth/decorators/get-user.decorator';
-import { UserEntity } from 'src/module/users/user.entity';
+import { GetUser } from '../../auth/decorators/get-user.decorator';
+import { UserEntity } from '../../users/user.entity';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { OrderResponseDto } from '../dto/order-response.dto';
 import { Order } from '../entities/order.entity';

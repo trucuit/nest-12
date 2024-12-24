@@ -1,5 +1,5 @@
 // src/order/entities/order.entity.ts
-import { UserEntity } from 'src/module/users/user.entity';
+import { UserEntity } from '../../users/user.entity';
 import {
   Column,
   CreateDateColumn,

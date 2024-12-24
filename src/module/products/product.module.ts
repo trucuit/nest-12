@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LoggerService } from 'src/common/scoped/logger.service';
+import { LoggerService } from '../../common/scoped/logger.service';
 import { CacheService } from 'src/transient/cache.service';
 import { CategoriesEntity } from '../categories/categories.entity';
 import { ProductController } from './product.controller';
