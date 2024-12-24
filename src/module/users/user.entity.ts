@@ -1,5 +1,4 @@
 // src/users/user.entity.ts
-import { Order } from 'src/orders/entities/order.entity';
 import {
   Entity,
   Column,
@@ -8,6 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Order } from '../orders/entities/order.entity';
 
 @Entity()
 export class UserEntity {

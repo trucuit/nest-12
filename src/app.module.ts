@@ -19,10 +19,10 @@ import { ProductEntity } from './module/products/product.entity';
 import { ProductModule } from './module/products/product.module';
 import { UserEntity } from './module/users/user.entity';
 import { UsersModule } from './module/users/users.module';
-import { OrderItem } from './orders/entities/order-item.entity';
-import { Order } from './orders/entities/order.entity';
-import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
+import { Order } from './module/orders/entities/order.entity';
+import { OrderItem } from './module/orders/entities/order-item.entity';
+import { OrdersModule } from './module/orders/orders.module';
 
 @Module({
   imports: [

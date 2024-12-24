@@ -1,7 +1,7 @@
 // src/order/dto/order-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderItem } from 'src/orders/entities/order-item.entity';
-import { OrderStatus } from 'src/orders/entities/order.entity';
+import { OrderItem } from 'src/module/orders/entities/order-item.entity';
+import { OrderStatus } from 'src/module/orders/entities/order.entity';
 
 export class OrderResponseDto {
   @ApiProperty({ description: 'Order ID', example: 'o1' })

@@ -1,6 +1,5 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { OrderService } from 'src/orders/orders/orders.service';
 import { MailQueueProcessor } from './mail-queue.processor';
 import { MailQueueService } from './mail-queue.service';
 
